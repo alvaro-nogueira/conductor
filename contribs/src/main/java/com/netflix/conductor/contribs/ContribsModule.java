@@ -23,6 +23,7 @@ import static com.netflix.conductor.core.events.EventQueues.EVENT_QUEUE_PROVIDER
 import java.util.HashMap;
 import java.util.Map;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.google.inject.AbstractModule;
@@ -51,6 +52,27 @@ public class ContribsModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(QueueManager.class).asEagerSingleton();
+		bind(AWSCredentialsProvider.class).toInstance(new AWSCredentialsProvider() {
+			@Override
+			public AWSCredentials getCredentials() {
+				return new AWSCredentials() {
+					@Override
+					public String getAWSAccessKeyId() {
+						return "<AWSAccessKeyId>";
+					}
+
+					@Override
+					public String getAWSSecretKey() {
+						return "<AWSSecretKey>";
+					}
+				};
+			}
+
+			@Override
+			public void refresh() {
+				// FAZ NADA
+			}
+		});
 	}
 
 
@@ -67,10 +89,10 @@ public class ContribsModule extends AbstractModule {
 	public AmazonSQSClient getSQSClient(AWSCredentialsProvider acp) {
 		return new AmazonSQSClient(acp);
 	}
-	
+
 	@Provides
 	public Map<Status, ObservableQueue> getQueues(Configuration config, AWSCredentialsProvider acp) {
-		
+
 		String stack = "";
 		if(config.getStack() != null && config.getStack().length() > 0) {
 			stack = config.getStack() + "_";
@@ -80,8 +102,9 @@ public class ContribsModule extends AbstractModule {
 		for(Status status : statuses) {
 			String queueName = config.getProperty("workflow.listener.queue.prefix", config.getAppId() + "_sqs_notify_" + stack + status.name());
 			AmazonSQSClient client = new AmazonSQSClient(acp);
+			client.setEndpoint("https://sqs.sa-east-1.amazonaws.com");
 			Builder builder = new SQSObservableQueue.Builder().withClient(client).withQueueName(queueName);
-			
+
 			String auth = config.getProperty("workflow.listener.queue.authorizedAccounts", "");
 			String[] accounts = auth.split(",");
 			for(String accountToAuthorize : accounts) {
@@ -93,7 +116,7 @@ public class ContribsModule extends AbstractModule {
 			ObservableQueue queue = builder.build();
 			queues.put(status, queue);
 		}
-		
+
 		return queues;
 	}
 }

@@ -62,11 +62,11 @@ public interface Configuration {
     String APP_ID_DEFAULT_VALUE = "conductor";
 
     String REGION_PROPERTY_NAME = "EC2_REGION";
-    String REGION_DEFAULT_VALUE = "us-east-1";
+    String REGION_DEFAULT_VALUE = "sa-east-1";
 
     String AVAILABILITY_ZONE_PROPERTY_NAME = "EC2_AVAILABILITY_ZONE";
-    String AVAILABILITY_ZONE_DEFAULT_VALUE = "us-east-1c";
-
+    String AVAILABILITY_ZONE_DEFAULT_VALUE = "sa-east-1c";
+ 
     String JERSEY_ENABLED_PROPERTY_NAME = "conductor.jersey.enabled";
     boolean JERSEY_ENABLED_DEFAULT_VALUE = true;
 
