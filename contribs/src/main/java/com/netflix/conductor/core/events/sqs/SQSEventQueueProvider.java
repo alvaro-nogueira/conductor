@@ -18,17 +18,18 @@
  */
 package com.netflix.conductor.core.events.sqs;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.netflix.conductor.contribs.queue.sqs.SQSObservableQueue;
 import com.netflix.conductor.contribs.queue.sqs.SQSObservableQueue.Builder;
 import com.netflix.conductor.core.config.Configuration;
 import com.netflix.conductor.core.events.EventQueueProvider;
 import com.netflix.conductor.core.events.queue.ObservableQueue;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Viren
@@ -46,6 +47,7 @@ public class SQSEventQueueProvider implements EventQueueProvider {
 	@Inject
 	public SQSEventQueueProvider(AmazonSQSClient client, Configuration config) {
 		this.client = client;
+		client.setEndpoint("https://sqs.sa-east-1.amazonaws.com");
 		this.batchSize = config.getIntProperty("workflow.event.queues.sqs.batchSize", 1);
 		this.pollTimeInMS = config.getIntProperty("workflow.event.queues.sqs.pollTimeInMS", 100);
 		this.visibilityTimeoutInSeconds = config.getIntProperty("workflow.event.queues.sqs.visibilityTimeoutInSeconds", 60);
